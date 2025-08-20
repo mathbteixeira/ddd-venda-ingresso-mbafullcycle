@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ddd-venda-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eventsales
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ddd-venda-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ddd-venda-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - ddd-venda-net
+
+  redis:
+    image: redis:7
+    container_name: ddd-venda-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ddd-venda-net
+
+  api:
+    image: openjdk:21-jdk
+    container_name: ddd-venda-api
+    depends_on:
+      - mysql
+      - rabbitmq
+      - redis
+    working_dir: /app
+    volumes:
+      - ./api:/app
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+    command: bash -c "./mvnw spring-boot:run"
+    ports:
+      - "8080:8080"
+    networks:
+      - ddd-venda-net
+
+volumes:
+  mysql_data:
+
+networks:
+  ddd-venda-net:
+    driver: bridge
