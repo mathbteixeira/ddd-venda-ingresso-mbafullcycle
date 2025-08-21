@@ -73,26 +73,26 @@ A aplicação é organizada em módulos que refletem os **contextos do domínio*
 
 O fluxo de Domain Events e Integration Events no sistema funciona da seguinte forma:
 
-   +-------------+        +------------------+        +---------------------+
-   |   API REST  | -----> |   Domain Layer   | -----> |   DomainEventManager |
-   +-------------+        +------------------+        +---------------------+
-           |                        |                           |
-           | cria Partner           | dispara PartnerCreated    |
-           v                        v                           v
-   +----------------+     +--------------------+        +----------------------+
-   | PartnerCreated | --> | StoredEvent (MySQL)| -----> | Integration Publisher |
-   +----------------+     +--------------------+        +----------------------+
-                                                                  |
-                                                                  v
-                                                       +---------------------+
-                                                       | RabbitMQ Exchange   |
-                                                       +---------------------+
-                                                                  |
-                                                                  v
-                                                       +---------------------+
-                                                       | Emails Consumer     |
-                                                       | (simula envio)      |
-                                                       +---------------------+
++-------------+        +------------------+        +---------------------+
+|   API REST  | -----> |   Domain Layer   | -----> |   DomainEventManager |
++-------------+        +------------------+        +---------------------+
+       |                        |                           |
+       | cria Partner           | dispara PartnerCreated    |
+       v                        v                           v
++----------------+     +--------------------+        +----------------------+
+| PartnerCreated | --> | StoredEvent (MySQL)| -----> | Integration Publisher |
++----------------+     +--------------------+        +----------------------+
+                                                              |
+                                                              v
+                                                   +---------------------+
+                                                   | RabbitMQ Exchange   |
+                                                   +---------------------+
+                                                              |
+                                                              v
+                                                   +---------------------+
+                                                   | Emails Consumer     |
+                                                   | (simula envio)      |
+                                                   +---------------------+
 
    1.	Um **Partner** é criado (POST /partners).
    2.	O domínio dispara um **Domain Event: PartnerCreated**.
