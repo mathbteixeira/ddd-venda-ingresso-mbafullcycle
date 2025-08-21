@@ -68,34 +68,3 @@ A aplicação é organizada em módulos que refletem os **contextos do domínio*
             •	POST /events → cria um evento
             •	POST /events/{eventId}/sections → adiciona seção a um evento
             •	POST /events/{eventId}/orders → cria um pedido
-   
-## 📡 Fluxo de Eventos
-
-O fluxo de Domain Events e Integration Events no sistema funciona da seguinte forma:
-
-+-------------+        +------------------+        +---------------------+
-|   API REST  | -----> |   Domain Layer   | -----> |   DomainEventManager |
-+-------------+        +------------------+        +---------------------+
-       |                        |                           |
-       | cria Partner           | dispara PartnerCreated    |
-       v                        v                           v
-+----------------+     +--------------------+        +----------------------+
-| PartnerCreated | --> | StoredEvent (MySQL)| -----> | Integration Publisher |
-+----------------+     +--------------------+        +----------------------+
-                                                              |
-                                                              v
-                                                   +---------------------+
-                                                   | RabbitMQ Exchange   |
-                                                   +---------------------+
-                                                              |
-                                                              v
-                                                   +---------------------+
-                                                   | Emails Consumer     |
-                                                   | (simula envio)      |
-                                                   +---------------------+
-
-   1.	Um **Partner** é criado (POST /partners).
-   2.	O domínio dispara um **Domain Event: PartnerCreated**.
-   3.	Esse evento é persistido em **Stored Events** (MySQL).
-   4.	O **Integration Event Publisher** converte em PartnerCreatedIntegrationEvent e envia para o **RabbitMQ**.
-   5.	O módulo **Emails** (consumidor) escuta a fila emails e processa o evento, simulando envio de e-mails.
